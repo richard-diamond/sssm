@@ -14,4 +14,9 @@ public interface CoreOps {
 
     BigDecimal calculateDividendYield(Stock stock,
                                       long  price);
+
+
+
+    BigDecimal calculatePERatio(Stock stock,
+                                long  price);
 }

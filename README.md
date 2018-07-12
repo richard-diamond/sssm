@@ -12,6 +12,6 @@ As the application requirements were unclear on some points and there was no pos
 
 ## Code
 * as the requirements document gives example stocks listed in pennies (the smallest currency unit), it was assumed that all price values would also be in pennies, allowing these values to be passed as integers
-* assumptions in the implemented code are identified in 'TODO' comments
+* assumptions in the implemented code are identified by associated 'TODO' comments
 * as it does not appear as a requirement, it is assumed that no input validation is expected
   * the exception to this assumption is null values, which are checked as part of the "must be production quality" requirement

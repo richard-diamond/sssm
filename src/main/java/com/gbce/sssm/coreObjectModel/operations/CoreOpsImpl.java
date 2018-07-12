@@ -47,6 +47,14 @@ public class CoreOpsImpl implements CoreOps {
 
 
 
+    @Override
+    public BigDecimal calculatePERatio(Stock stock,
+                                       long  price) {
+        return null;
+    }
+
+
+
     private BigDecimal divideAndRound(long dividend,
                                       long divisor) {
 

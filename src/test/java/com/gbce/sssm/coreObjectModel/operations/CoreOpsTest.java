@@ -105,6 +105,39 @@ public class CoreOpsTest {
 
 
 
+    @Test
+    public void testPERatioWithNullStock() {
+
+        BigDecimal dividendYield;
+
+        dividendYield = coreOps.calculatePERatio(null, 100);
+        assertNull(dividendYield);
+    }
+
+
+
+    @Test
+    public void testPERatioWithZeroLastDividend() {
+
+        BigDecimal dividendYield;
+
+        dividendYield = coreOps.calculatePERatio(STOCK_TEA, 100);
+        assertEquals("0", dividendYield.toString());
+    }
+
+
+
+    @Test
+    public void testPERatioWithPositiveLastDividend() {
+
+        BigDecimal dividendYield;
+
+        dividendYield = coreOps.calculatePERatio(STOCK_GIN, 200);
+        assertEquals("25.0000", dividendYield.toString());
+    }
+
+
+
     private static class MockStock implements Stock {
 
         private String    symbol;
