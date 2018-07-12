@@ -256,6 +256,60 @@ public class CoreOpsTest {
 
 
 
+    @Test
+    public void testVolumeWeightedStockPriceWithNullStock() {
+
+        BigDecimal vwsp;
+
+        vwsp = coreOps.calculateVolumeWeightedStockPriceInLastFiveMins(null);
+        assertNull(vwsp);
+    }
+
+
+
+    @Test
+    public void testVolumeWeightedStockPriceWithNoData() {
+
+        BigDecimal vwsp;
+
+        vwsp = coreOps.calculateVolumeWeightedStockPriceInLastFiveMins(STOCK_JOE);
+        assertEquals("0.0000", vwsp.toString());
+    }
+
+
+
+    @Test
+    public void testVolumeWeightedStockPriceWithAllDataOutsideTimePeriod() {
+
+        BigDecimal vwsp;
+
+        coreOps.recordTrade(STOCK_JOE, Instant.now().minusSeconds(301), 10, BuySellIndicator.BUY, 50);
+        coreOps.recordTrade(STOCK_JOE, Instant.now().minusSeconds(301), 15, BuySellIndicator.BUY, 51);
+        coreOps.recordTrade(STOCK_GIN, Instant.now(), 20, BuySellIndicator.BUY, 52);
+
+        vwsp = coreOps.calculateVolumeWeightedStockPriceInLastFiveMins(STOCK_JOE);
+        assertEquals("0.0000", vwsp.toString());
+    }
+
+
+
+    @Test
+    public void testVolumeWeightedStockPriceWithSomeDataInsideTimePeriod() {
+
+        BigDecimal vwsp;
+
+        coreOps.recordTrade(STOCK_JOE, Instant.now().minusSeconds(301), 5, BuySellIndicator.BUY, 40);
+        coreOps.recordTrade(STOCK_JOE, Instant.now().minusSeconds(120), 10, BuySellIndicator.BUY, 50);
+        coreOps.recordTrade(STOCK_JOE, Instant.now().minusSeconds(60), 15, BuySellIndicator.BUY, 51);
+        coreOps.recordTrade(STOCK_JOE, Instant.now(), 20, BuySellIndicator.BUY, 52);
+        coreOps.recordTrade(STOCK_GIN, Instant.now(), 20, BuySellIndicator.BUY, 52);
+
+        vwsp = coreOps.calculateVolumeWeightedStockPriceInLastFiveMins(STOCK_JOE);
+        assertEquals("51.2222", vwsp.toString());
+    }
+
+
+
     private class MockTradeDAO implements TradeDAO {
 
         private final List<Trade> tradeStore = new ArrayList<>();

@@ -103,6 +103,14 @@ public class CoreOpsImpl implements CoreOps {
 
 
 
+    @Override
+    public BigDecimal calculateVolumeWeightedStockPriceInLastFiveMins(Stock stock) {
+
+        return null;
+    }
+
+
+
     private BigDecimal divideAndRound(long dividend,
                                       long divisor) {
 

@@ -27,4 +27,8 @@ public interface CoreOps {
                         long             quantity,
                         BuySellIndicator buySellIndicator,
                         long             price);
+
+
+
+    BigDecimal calculateVolumeWeightedStockPriceInLastFiveMins(Stock stock);
 }
