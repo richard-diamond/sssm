@@ -3,15 +3,24 @@ package com.gbce.sssm.coreObjectModel.operations;
 
 
 import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
+import com.gbce.sssm.coreObjectModel.data.BuySellIndicator;
 import com.gbce.sssm.coreObjectModel.data.Stock;
 import com.gbce.sssm.coreObjectModel.data.StockType;
 
+import com.gbce.sssm.coreObjectModel.data.Trade;
+import com.gbce.sssm.coreObjectModel.dataStore.TradeDAO;
 import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 
 
@@ -23,14 +32,16 @@ public class CoreOpsTest {
     private static final Stock STOCK_GIN = new MockStock("GIN", StockType.PREFERRED, 8, 0.02, 100);
     private static final Stock STOCK_JOE = new MockStock("JOE", StockType.COMMON, 13, null, 250);
 
-    private CoreOps coreOps;
+    private CoreOps  coreOps;
+    private TradeDAO tradeDAO;
 
 
 
     @Before
     public void setup() {
 
-        coreOps  = new CoreOpsImpl();
+        tradeDAO = new MockTradeDAO();
+        coreOps  = new CoreOpsImpl(tradeDAO);
     }
 
 
@@ -134,6 +145,130 @@ public class CoreOpsTest {
 
         dividendYield = coreOps.calculatePERatio(STOCK_GIN, 200);
         assertEquals("25.0000", dividendYield.toString());
+    }
+
+
+
+    @Test
+    public void testRecordTradeWithNullStock() {
+
+        boolean status;
+
+        status = coreOps.recordTrade(null, Instant.now(), 10, BuySellIndicator.BUY, 50);
+        assertFalse(status);
+    }
+
+
+
+    @Test
+    public void testRecordTradeWithNullBuySellIndicator() {
+
+        boolean status;
+
+        status = coreOps.recordTrade(STOCK_JOE, Instant.now(), 10, null, 50);
+        assertFalse(status);
+    }
+
+
+
+    @Test
+    public void testRecordTradeWithNegativeQuantity() {
+
+        boolean status;
+        int     preRecord;
+        int     postRecord;
+
+        preRecord  = tradeDAO.getByStock(STOCK_JOE).size();
+        status     = coreOps.recordTrade(STOCK_JOE, Instant.now(), -10, BuySellIndicator.BUY, 50);
+        postRecord = tradeDAO.getByStock(STOCK_JOE).size();
+
+        assertTrue(status);
+        assertTrue(preRecord < postRecord);
+    }
+
+
+
+    @Test
+    public void testRecordTradeWithZeroQuantity() {
+
+        boolean status;
+        int     preRecord;
+        int     postRecord;
+
+        preRecord  = tradeDAO.getByStock(STOCK_JOE).size();
+        status     = coreOps.recordTrade(STOCK_JOE, Instant.now(), 0, BuySellIndicator.BUY, 50);
+        postRecord = tradeDAO.getByStock(STOCK_JOE).size();
+
+        assertTrue(status);
+        assertTrue(preRecord < postRecord);
+    }
+
+
+
+    @Test
+    public void testRecordTradeWithNegativePrice() {
+
+        boolean status;
+        int     preRecord;
+        int     postRecord;
+
+        preRecord  = tradeDAO.getByStock(STOCK_JOE).size();
+        status     = coreOps.recordTrade(STOCK_JOE, Instant.now(), 10, BuySellIndicator.BUY, -50);
+        postRecord = tradeDAO.getByStock(STOCK_JOE).size();
+
+        assertTrue(status);
+        assertTrue(preRecord < postRecord);
+    }
+
+
+
+    @Test
+    public void testRecordTradeWithZeroPrice() {
+
+        boolean status;
+        int     preRecord;
+        int     postRecord;
+
+        preRecord  = tradeDAO.getByStock(STOCK_JOE).size();
+        status     = coreOps.recordTrade(STOCK_JOE, Instant.now(), 10, BuySellIndicator.BUY, 0);
+        postRecord = tradeDAO.getByStock(STOCK_JOE).size();
+
+        assertTrue(status);
+        assertTrue(preRecord < postRecord);
+    }
+
+
+
+    @Test
+    public void testRecordTradeWithValidData() {
+
+        boolean status;
+        int     preRecord;
+        int     postRecord;
+
+        preRecord  = tradeDAO.getByStock(STOCK_JOE).size();
+        status     = coreOps.recordTrade(STOCK_JOE, Instant.now(), 10, BuySellIndicator.BUY, 50);
+        postRecord = tradeDAO.getByStock(STOCK_JOE).size();
+
+        assertTrue(status);
+        assertTrue(preRecord < postRecord);
+    }
+
+
+
+    private class MockTradeDAO implements TradeDAO {
+
+        private final List<Trade> tradeStore = new ArrayList<>();
+
+
+
+        @Override
+        public List<Trade> getByStock(Stock stock) {
+
+            return tradeStore.stream()
+                             .filter(trade -> trade.getStock().equals(stock))
+                             .collect(Collectors.toList());
+        }
     }
 
 

@@ -3,8 +3,11 @@ package com.gbce.sssm.coreObjectModel.operations;
 
 
 import java.math.BigDecimal;
+import java.time.Instant;
 
+import com.gbce.sssm.coreObjectModel.data.BuySellIndicator;
 import com.gbce.sssm.coreObjectModel.data.Stock;
+import com.gbce.sssm.coreObjectModel.dataStore.TradeDAO;
 
 
 
@@ -12,6 +15,14 @@ public class CoreOpsImpl implements CoreOps {
 
     private static final int ROUNDING_MODE   = BigDecimal.ROUND_HALF_DOWN;
     private static final int ROUNDING_DIGITS = 4;
+
+    private final TradeDAO tradeDAO;
+
+
+
+    public CoreOpsImpl(TradeDAO tradeDAO) {
+        this.tradeDAO = tradeDAO;
+    }
 
 
 
@@ -61,6 +72,18 @@ public class CoreOpsImpl implements CoreOps {
             peRatio = divideAndRound(price, stock.getLastDividend());
 
         return peRatio;
+    }
+
+
+
+    @Override
+    public boolean recordTrade(Stock            stock,
+                               Instant          timestamp,
+                               long             quantity,
+                               BuySellIndicator buySellIndicator,
+                               long             price) {
+
+        return false;
     }
 
 

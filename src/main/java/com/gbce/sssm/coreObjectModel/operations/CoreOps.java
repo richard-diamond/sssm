@@ -19,4 +19,12 @@ public interface CoreOps {
 
     BigDecimal calculatePERatio(Stock stock,
                                 long  price);
+
+
+
+    boolean recordTrade(Stock            stock,
+                        Instant          timestamp,
+                        long             quantity,
+                        BuySellIndicator buySellIndicator,
+                        long             price);
 }
