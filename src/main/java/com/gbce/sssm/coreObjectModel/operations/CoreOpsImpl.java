@@ -10,7 +10,9 @@ import java.util.List;
 import com.gbce.sssm.coreObjectModel.data.BuySellIndicator;
 import com.gbce.sssm.coreObjectModel.data.Stock;
 import com.gbce.sssm.coreObjectModel.data.Trade;
+import com.gbce.sssm.coreObjectModel.dataStore.StockDAO;
 import com.gbce.sssm.coreObjectModel.dataStore.TradeDAO;
+import com.gbce.sssm.coreObjectModel.util.Maths;
 
 
 
@@ -20,11 +22,15 @@ public class CoreOpsImpl implements CoreOps {
     private static final int ROUNDING_DIGITS = 4;
 
     private final TradeDAO tradeDAO;
+    private final StockDAO stockDAO;
 
 
 
-    public CoreOpsImpl(TradeDAO tradeDAO) {
+    public CoreOpsImpl(TradeDAO tradeDAO,
+                       StockDAO stockDAO) {
+
         this.tradeDAO = tradeDAO;
+        this.stockDAO = stockDAO;
     }
 
 
@@ -113,27 +119,8 @@ public class CoreOpsImpl implements CoreOps {
 
         if (stock == null)
             volumeWaitedStockPrice = null;          // TODO: need to determine the business requirement for this scenario (exception?)
-        else {
-            List<Trade> trades;
-            double      volumeWaitedStockPriceDbl;
-            long        quantities               = 0;
-            long        tradedPricesByQuantities = 0;
-
-            trades = tradeDAO.getByStockAndPastTime(stock, 5);
-
-            for (Trade trade : trades) {
-
-                quantities               += trade.getQuantity();
-                tradedPricesByQuantities += trade.getPrice() * trade.getQuantity();
-            }
-
-            if (quantities == 0)
-                volumeWaitedStockPriceDbl = 0.0;    // TODO: need to determine the business requirement for this scenario
-            else
-                volumeWaitedStockPriceDbl = (double)tradedPricesByQuantities / quantities;
-
-            volumeWaitedStockPrice = new BigDecimal(volumeWaitedStockPriceDbl, MathContext.DECIMAL32).setScale(ROUNDING_DIGITS, ROUNDING_MODE);
-        }
+        else
+            volumeWaitedStockPrice = convertAndRound(calculateRawVolumeWeightedStockPriceForPastFiveMins(stock));
 
         return volumeWaitedStockPrice;
     }
@@ -143,7 +130,57 @@ public class CoreOpsImpl implements CoreOps {
     @Override
     public BigDecimal calculateGBCEAllShareIndex() {
 
-        return null;
+        List<Stock> stocks;
+        double      productVWSP;
+        double      allShareIndex;
+
+        stocks = stockDAO.getAll();
+
+        if (stocks.size() == 0)
+            allShareIndex = 0.0;                    // TODO: need to determine the business requirement for this scenario
+        else
+        {
+            productVWSP = 1.0;
+
+            for (Stock stock : stocks)
+            {
+                double volumeWeightedStockPrice;
+
+                volumeWeightedStockPrice = calculateRawVolumeWeightedStockPriceForPastFiveMins(stock);
+
+                // TODO: need to check with business if zero values should be excluded, as it was not mentioned in the requirements
+                productVWSP *= volumeWeightedStockPrice;
+            }
+
+            allShareIndex = Maths.nthRoot(stocks.size(), productVWSP);
+        }
+
+        return convertAndRound(allShareIndex);
+    }
+
+
+
+    private double calculateRawVolumeWeightedStockPriceForPastFiveMins(Stock stock) {
+
+        List<Trade> trades;
+        double      volumeWaitedStockPrice;
+        long        quantities               = 0;
+        long        tradedPricesByQuantities = 0;
+
+        trades = tradeDAO.getByStockAndPastTime(stock, 5);
+
+        for (Trade trade : trades) {
+
+            quantities               += trade.getQuantity();
+            tradedPricesByQuantities += trade.getPrice() * trade.getQuantity();
+        }
+
+        if (quantities == 0)
+            volumeWaitedStockPrice = 0.0;           // TODO: need to determine the business requirement for this scenario
+        else
+            volumeWaitedStockPrice = (double)tradedPricesByQuantities / quantities;
+
+        return volumeWaitedStockPrice;
     }
 
 
@@ -168,5 +205,12 @@ public class CoreOpsImpl implements CoreOps {
                                       BigDecimal divisor) {
 
         return dividend.divide(divisor, ROUNDING_DIGITS, ROUNDING_MODE);
+    }
+
+
+
+    private BigDecimal convertAndRound(double value) {
+
+        return new BigDecimal(value, MathContext.DECIMAL32).setScale(ROUNDING_DIGITS, ROUNDING_MODE);
     }
 }

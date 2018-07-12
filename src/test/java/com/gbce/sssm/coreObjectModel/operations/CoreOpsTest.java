@@ -12,6 +12,7 @@ import com.gbce.sssm.coreObjectModel.data.BuySellIndicator;
 import com.gbce.sssm.coreObjectModel.data.Stock;
 import com.gbce.sssm.coreObjectModel.data.StockType;
 import com.gbce.sssm.coreObjectModel.data.Trade;
+import com.gbce.sssm.coreObjectModel.dataStore.StockDAO;
 import com.gbce.sssm.coreObjectModel.dataStore.TradeDAO;
 
 import org.junit.Before;
@@ -41,7 +42,7 @@ public class CoreOpsTest {
     public void setup() {
 
         tradeDAO = new MockTradeDAO();
-        coreOps  = new CoreOpsImpl(tradeDAO);
+        coreOps  = new CoreOpsImpl(tradeDAO, new MockStockDAO());
     }
 
 
@@ -407,6 +408,32 @@ public class CoreOpsTest {
             return trades.stream()
                          .filter(trade -> !timePeriodStart.isAfter(trade.getTimeStamp()))
                          .collect(Collectors.toList());
+        }
+    }
+
+
+
+    private class MockStockDAO implements StockDAO {
+
+        private final List<Stock> stocks = new ArrayList<>();
+
+
+
+        MockStockDAO() {
+
+            stocks.add(STOCK_TEA);
+            stocks.add(STOCK_POP);
+            stocks.add(STOCK_ALE);
+            stocks.add(STOCK_GIN);
+            stocks.add(STOCK_JOE);
+        }
+
+
+
+        @Override
+        public List<Stock> getAll() {
+
+            return stocks;
         }
     }
 
