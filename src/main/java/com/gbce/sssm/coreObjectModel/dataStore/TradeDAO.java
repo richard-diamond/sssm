@@ -22,4 +22,9 @@ public interface TradeDAO {
 
 
     List<Trade> getByStock(Stock stock);
+
+
+
+    List<Trade> getByStockAndPastTime(Stock stock,
+                                      long  minutes);
 }

@@ -3,10 +3,13 @@ package com.gbce.sssm.coreObjectModel.operations;
 
 
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.time.Instant;
+import java.util.List;
 
 import com.gbce.sssm.coreObjectModel.data.BuySellIndicator;
 import com.gbce.sssm.coreObjectModel.data.Stock;
+import com.gbce.sssm.coreObjectModel.data.Trade;
 import com.gbce.sssm.coreObjectModel.dataStore.TradeDAO;
 
 
@@ -106,7 +109,33 @@ public class CoreOpsImpl implements CoreOps {
     @Override
     public BigDecimal calculateVolumeWeightedStockPriceInLastFiveMins(Stock stock) {
 
-        return null;
+        BigDecimal volumeWaitedStockPrice;
+
+        if (stock == null)
+            volumeWaitedStockPrice = null;          // TODO: need to determine the business requirement for this scenario (exception?)
+        else {
+            List<Trade> trades;
+            double      volumeWaitedStockPriceDbl;
+            long        quantities               = 0;
+            long        tradedPricesByQuantities = 0;
+
+            trades = tradeDAO.getByStockAndPastTime(stock, 5);
+
+            for (Trade trade : trades) {
+
+                quantities               += trade.getQuantity();
+                tradedPricesByQuantities += trade.getPrice() * trade.getQuantity();
+            }
+
+            if (quantities == 0)
+                volumeWaitedStockPriceDbl = 0.0;    // TODO: need to determine the business requirement for this scenario
+            else
+                volumeWaitedStockPriceDbl = (double)tradedPricesByQuantities / quantities;
+
+            volumeWaitedStockPrice = new BigDecimal(volumeWaitedStockPriceDbl, MathContext.DECIMAL32).setScale(ROUNDING_DIGITS, ROUNDING_MODE);
+        }
+
+        return volumeWaitedStockPrice;
     }
 
 

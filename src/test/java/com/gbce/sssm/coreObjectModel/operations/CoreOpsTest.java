@@ -11,9 +11,9 @@ import java.util.stream.Collectors;
 import com.gbce.sssm.coreObjectModel.data.BuySellIndicator;
 import com.gbce.sssm.coreObjectModel.data.Stock;
 import com.gbce.sssm.coreObjectModel.data.StockType;
-
 import com.gbce.sssm.coreObjectModel.data.Trade;
 import com.gbce.sssm.coreObjectModel.dataStore.TradeDAO;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -335,6 +335,24 @@ public class CoreOpsTest {
             return tradeStore.stream()
                              .filter(trade -> trade.getStock().equals(stock))
                              .collect(Collectors.toList());
+        }
+
+
+
+        @Override
+        public List<Trade> getByStockAndPastTime(Stock stock,
+                                                 long  minutes) {
+
+            List<Trade> trades;
+            Instant     timePeriodStart;
+
+            timePeriodStart = Instant.now()
+                                     .minusSeconds(minutes * 60);
+            trades          = getByStock(stock);
+
+            return trades.stream()
+                         .filter(trade -> !timePeriodStart.isAfter(trade.getTimeStamp()))
+                         .collect(Collectors.toList());
         }
     }
 
