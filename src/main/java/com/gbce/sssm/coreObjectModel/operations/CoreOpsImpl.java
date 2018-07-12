@@ -50,7 +50,17 @@ public class CoreOpsImpl implements CoreOps {
     @Override
     public BigDecimal calculatePERatio(Stock stock,
                                        long  price) {
-        return null;
+
+        BigDecimal peRatio;
+
+        if (stock == null)
+            peRatio = null;                         // TODO: need to determine the business requirement for this scenario (exception?)
+        else if (stock.getLastDividend() == 0)
+            peRatio = BigDecimal.ZERO;              // TODO: need to determine the business requirement for this scenario (exception?)
+        else
+            peRatio = divideAndRound(price, stock.getLastDividend());
+
+        return peRatio;
     }
 
 
