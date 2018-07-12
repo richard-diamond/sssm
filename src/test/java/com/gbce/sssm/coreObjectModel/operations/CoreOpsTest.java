@@ -263,6 +263,19 @@ public class CoreOpsTest {
 
 
         @Override
+        public boolean add(Stock            stock,
+                           Instant          timestamp,
+                           long             quantity,
+                           BuySellIndicator buySellIndicator,
+                           long             price) {
+
+            tradeStore.add(new MockTrade(stock, timestamp, quantity, buySellIndicator, price));
+            return true;
+        }
+
+
+
+        @Override
         public List<Trade> getByStock(Stock stock) {
 
             return tradeStore.stream()
@@ -334,6 +347,71 @@ public class CoreOpsTest {
         public long getParValue() {
 
             return parValue;
+        }
+    }
+
+
+
+    private class MockTrade implements Trade {
+        private final Stock            stock;
+        private final Instant          timeStamp;
+        private final long             quantity;
+        private final BuySellIndicator buySellIndicator;
+        private final long             price;
+
+
+
+        MockTrade(Stock            stock,
+                  Instant          timeStamp,
+                  long             quantity,
+                  BuySellIndicator buySellIndicator,
+                  long             price) {
+
+            this.stock            = stock;
+            this.timeStamp        = timeStamp;
+            this.quantity         = quantity;
+            this.buySellIndicator = buySellIndicator;
+            this.price            = price;
+        }
+
+
+
+        @Override
+        public Stock getStock() {
+
+            return stock;
+        }
+
+
+
+        @Override
+        public Instant getTimeStamp() {
+
+            return timeStamp;
+        }
+
+
+
+        @Override
+        public long getQuantity() {
+
+            return quantity;
+        }
+
+
+
+        @Override
+        public BuySellIndicator getBuySellIndicator() {
+
+            return buySellIndicator;
+        }
+
+
+
+        @Override
+        public long getPrice() {
+
+            return price;
         }
     }
 }

@@ -83,7 +83,22 @@ public class CoreOpsImpl implements CoreOps {
                                BuySellIndicator buySellIndicator,
                                long             price) {
 
-        return false;
+        boolean status;
+
+        if (stock == null)
+            status = false;                         // TODO: obvious assumption... if no stock, then no trade
+        else if (buySellIndicator == null)
+            status = false;                         // TODO: (fairly) obvious assumption... if we don't know if it's buy or sell, then it's not a trade
+        else {
+            // TODO: need to determine the business requirement for price or quantity being less than or equal to zero. For now, just accept it...
+
+            if (timestamp == null)
+                timestamp = Instant.now();          // TODO: need to determine the business requirement for this scenario (error?)
+
+            status = tradeDAO.add(stock, timestamp, quantity, buySellIndicator, price);
+        }
+
+        return status;
     }
 
 
