@@ -11,6 +11,7 @@ As the application requirements were unclear on some points and there was no pos
 * geometric mean:: the requirements do not specifically nominate the time period for trade selection, so the time period for the volume weighted stock price calculation (the previous 5 minutes) has been assumed/applied
 
 ## Code
+* as the requirements give no indication of the types of exceptions that can be emitted (if any) for erroneous conditions, exceptions were avoided in favour of return values
 * as the requirements document gives example stocks listed in pennies (the smallest currency unit), it was assumed that all price values would also be in pennies, allowing these values to be passed as integers
 * assumptions in the implemented code are identified by associated 'TODO' comments
 * as it does not appear as a requirement, it is assumed that no input validation is expected
