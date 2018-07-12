@@ -310,6 +310,60 @@ public class CoreOpsTest {
 
 
 
+    @Test
+    public void testGBCEAllShareIndexWithNoTrades() {
+
+        BigDecimal asi;
+
+        asi = coreOps.calculateGBCEAllShareIndex();
+        assertEquals("0.0000", asi.toString());
+    }
+
+
+
+    @Test
+    public void testGBCEAllShareIndexWithSomeZeroVwspStocks() {
+
+        BigDecimal asi;
+
+        coreOps.recordTrade(STOCK_TEA, Instant.now().minusSeconds(301), 5, BuySellIndicator.BUY, 40);
+        coreOps.recordTrade(STOCK_POP, Instant.now().minusSeconds(120), 10, BuySellIndicator.BUY, 50);
+        coreOps.recordTrade(STOCK_POP, Instant.now(), 20, BuySellIndicator.BUY, 52);
+        coreOps.recordTrade(STOCK_ALE, Instant.now().minusSeconds(60), 15, BuySellIndicator.BUY, 51);
+        coreOps.recordTrade(STOCK_ALE, Instant.now(), 20, BuySellIndicator.BUY, 52);
+        coreOps.recordTrade(STOCK_GIN, Instant.now().minusSeconds(40), 15, BuySellIndicator.BUY, 51);
+        coreOps.recordTrade(STOCK_GIN, Instant.now(), 20, BuySellIndicator.BUY, 52);
+        coreOps.recordTrade(STOCK_JOE, Instant.now().minusSeconds(20), 15, BuySellIndicator.BUY, 51);
+        coreOps.recordTrade(STOCK_JOE, Instant.now(), 20, BuySellIndicator.BUY, 52);
+
+        asi = coreOps.calculateGBCEAllShareIndex();
+        assertEquals("0.0000", asi.toString());
+    }
+
+
+
+    @Test
+    public void testGBCEAllShareIndexWithAllStocks() {
+
+        BigDecimal asi;
+
+        coreOps.recordTrade(STOCK_TEA, Instant.now().minusSeconds(301), 5, BuySellIndicator.BUY, 40);
+        coreOps.recordTrade(STOCK_TEA, Instant.now(), 20, BuySellIndicator.BUY, 52);
+        coreOps.recordTrade(STOCK_POP, Instant.now().minusSeconds(120), 10, BuySellIndicator.BUY, 50);
+        coreOps.recordTrade(STOCK_POP, Instant.now(), 20, BuySellIndicator.BUY, 52);
+        coreOps.recordTrade(STOCK_ALE, Instant.now().minusSeconds(60), 15, BuySellIndicator.BUY, 51);
+        coreOps.recordTrade(STOCK_ALE, Instant.now(), 20, BuySellIndicator.BUY, 52);
+        coreOps.recordTrade(STOCK_GIN, Instant.now().minusSeconds(40), 15, BuySellIndicator.BUY, 51);
+        coreOps.recordTrade(STOCK_GIN, Instant.now(), 20, BuySellIndicator.BUY, 52);
+        coreOps.recordTrade(STOCK_JOE, Instant.now().minusSeconds(20), 15, BuySellIndicator.BUY, 51);
+        coreOps.recordTrade(STOCK_JOE, Instant.now(), 20, BuySellIndicator.BUY, 52);
+
+        asi = coreOps.calculateGBCEAllShareIndex();
+        assertEquals("51.6091", asi.toString());
+    }
+
+
+
     private class MockTradeDAO implements TradeDAO {
 
         private final List<Trade> tradeStore = new ArrayList<>();

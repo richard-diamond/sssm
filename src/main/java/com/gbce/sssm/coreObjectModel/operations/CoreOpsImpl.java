@@ -140,6 +140,14 @@ public class CoreOpsImpl implements CoreOps {
 
 
 
+    @Override
+    public BigDecimal calculateGBCEAllShareIndex() {
+
+        return null;
+    }
+
+
+
     private BigDecimal divideAndRound(long dividend,
                                       long divisor) {
 

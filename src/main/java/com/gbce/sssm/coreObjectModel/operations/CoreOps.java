@@ -31,4 +31,8 @@ public interface CoreOps {
 
 
     BigDecimal calculateVolumeWeightedStockPriceInLastFiveMins(Stock stock);
+
+
+
+    BigDecimal calculateGBCEAllShareIndex();
 }
